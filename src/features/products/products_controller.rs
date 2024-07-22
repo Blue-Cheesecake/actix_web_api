@@ -15,7 +15,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
 
 #[get("")]
 async fn get_product_list(client: web::Data<Client>) -> impl Responder {
-    let collection: Collection<ProductModel> = client.database("myself").collection("products");
+    let collection: Collection<ProductModel> = client.database("playground").collection("products");
     let mut cursor = collection
         .find(doc! {})
         .await
@@ -26,6 +26,7 @@ async fn get_product_list(client: web::Data<Client>) -> impl Responder {
     loop {
         if cursor.advance().await.unwrap() {
             products.push(cursor.deserialize_current().unwrap());
+            continue;
         }
 
         break;
@@ -39,7 +40,7 @@ async fn create_product(
     client: web::Data<Client>,
     data: web::Json<ProductModel>,
 ) -> impl Responder {
-    let collection: Collection<ProductModel> = client.database("myself").collection("products");
+    let collection: Collection<ProductModel> = client.database("playground").collection("products");
     let result = collection.insert_one(data.into_inner()).await;
 
     match result {
